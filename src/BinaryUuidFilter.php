@@ -17,7 +17,7 @@ trait BinaryUuidFilter
      *
      * @return void
      */
-    protected static function boot(): void
+    public static function boot(): void
     {
         parent::boot();
 
