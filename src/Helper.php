@@ -2,10 +2,20 @@
 
 namespace Yaquawa\Laravel\PassportBinaryUuidAdapter;
 
+use Ramsey\Uuid\Codec\OrderedTimeCodec;
 use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidFactory;
 
 class Helper
 {
+    public static function getFactory()
+    {
+        $factory = new UuidFactory();
+        $codec = new OrderedTimeCodec($factory->getUuidBuilder());
+        $factory->setCodec($codec);
+
+        return $factory;
+    }
 
     /**
      * Encode a `string UUID` to `binary UUID` if possible.
@@ -16,12 +26,14 @@ class Helper
      */
     public static function encodeUuid($uuid): string
     {
+        $factory = self::getFactory();
+
         if ( ! Uuid::isValid($uuid)) {
             return $uuid;
         }
 
         if ( ! $uuid instanceof Uuid) {
-            $uuid = Uuid::fromString($uuid);
+            $uuid = $factory->fromString($uuid);
         }
 
         return $uuid->getBytes();
@@ -36,12 +48,13 @@ class Helper
      */
     public static function decodeUuid(string $binaryUuid): string
     {
+        $factory = self::getFactory();
+
         if (Uuid::isValid($binaryUuid)) {
             return $binaryUuid;
         }
 
-        return Uuid::fromBytes($binaryUuid)->toString();
+        return $factory->fromBytes($binaryUuid)->toString();
     }
-
 
 }
